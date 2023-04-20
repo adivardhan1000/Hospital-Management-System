@@ -2,23 +2,32 @@
 session_start();
 $con=mysqli_connect("localhost","root","","myhmsdb");
 if(isset($_POST['patsub1'])){
-	$fname=$_POST['fname'];
+	$fname=htmlspecialchars($_POST['fname']);
   $lname=$_POST['lname'];
   $gender=$_POST['gender'];
   $email=$_POST['email'];
   $contact=$_POST['contact'];
 	$password=$_POST['password'];
   $cpassword=$_POST['cpassword'];
-  if($password==$cpassword){
+
+  $query_by_email ="select * from patreg where email='$email';";
+	$result=mysqli_query($con,$query_by_email);
+  $patient = mysqli_fetch_array($result,MYSQLI_ASSOC);
+  if (mysqli_num_rows($result) != 0) 
+  {
+    echo("<script>alert('A user with the given email already exists. Try Again!');
+          window.location.href = 'index1.php';</script>");
+  }
+  else if($password==$cpassword){
   	$query="insert into patreg(fname,lname,gender,email,contact,password,cpassword) values ('$fname','$lname','$gender','$email','$contact','$password','$cpassword');";
     $result=mysqli_query($con,$query);
     if($result){
-        $_SESSION['username'] = $_POST['fname']." ".$_POST['lname'];
-        $_SESSION['fname'] = $_POST['fname'];
-        $_SESSION['lname'] = $_POST['lname'];
-        $_SESSION['gender'] = $_POST['gender'];
-        $_SESSION['contact'] = $_POST['contact'];
-        $_SESSION['email'] = $_POST['email'];
+        $_SESSION['username'] = $fname." ".$lname;
+        $_SESSION['fname'] = $fname;
+        $_SESSION['lname'] = $lname;
+        $_SESSION['gender'] = $gender;
+        $_SESSION['contact'] = $contact;
+        $_SESSION['email'] = $email;
         header("Location:admin-panel.php");
     } 
 
